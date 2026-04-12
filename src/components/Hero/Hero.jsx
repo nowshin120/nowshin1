@@ -1,4 +1,3 @@
-/// src/components/Hero/Hero.jsx ///
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useLanguage } from '../../context/LanguageContext';
@@ -19,20 +18,19 @@ export default function Hero({ activeCategory, onCategoryChange }) {
       .in('key', ['banner_text', 'banner_image_url', 'banner_image_url_mobile', 'banner_active'])
       .then(({ data }) => {
         if (!data) return;
-        data.forEach((s) => {
-          if (s.key === 'banner_text') setBannerText(s.value ?? '');
-          if (s.key === 'banner_image_url') setBannerImage(s.value ?? '');
-          if (s.key === 'banner_image_url_mobile') setBannerMobileImage(s.value ?? '');
-          if (s.key === 'banner_active') setBannerActive(s.value !== 'false');
+
+        data.forEach((setting) => {
+          if (setting.key === 'banner_text') setBannerText(setting.value ?? '');
+          if (setting.key === 'banner_image_url') setBannerImage(setting.value ?? '');
+          if (setting.key === 'banner_image_url_mobile') setBannerMobileImage(setting.value ?? '');
+          if (setting.key === 'banner_active') setBannerActive(setting.value !== 'false');
         });
       });
   }, []);
 
-  // Mobile uses mobile image; falls back to PC image if not set
   const mobileImg = bannerMobileImage || bannerImage;
   const pcImg = bannerImage;
 
-  // Shared category sidebar JSX for PC — extracted to avoid duplication
   const PcCategorySidebar = () => (
     <div className="overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-[0_8px_32px_rgba(15,23,42,0.07)]">
       <div className="border-b border-slate-100 px-4 py-4">
@@ -43,6 +41,7 @@ export default function Hero({ activeCategory, onCategoryChange }) {
           {isEnglish ? 'Categories' : 'ক্যাটাগরি'}
         </h2>
       </div>
+
       <nav className="p-2">
         {SHOP_CATEGORIES.map((category) => (
           <button
@@ -64,7 +63,6 @@ export default function Hero({ activeCategory, onCategoryChange }) {
 
   return (
     <>
-      {/* ── Mobile: Category Pills sticky below header ── */}
       <div className="sticky top-16 z-30 border-b border-slate-100 bg-white/98 backdrop-blur-md lg:hidden">
         <div
           className="flex items-center gap-2 overflow-x-auto px-4 py-2.5"
@@ -87,7 +85,6 @@ export default function Hero({ activeCategory, onCategoryChange }) {
         </div>
       </div>
 
-      {/* ── Mobile: Full-width banner ── */}
       {bannerActive && (
         <section className="block lg:hidden">
           {mobileImg ? (
@@ -98,6 +95,7 @@ export default function Hero({ activeCategory, onCategoryChange }) {
                 className="h-[200px] w-full object-cover object-center"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-slate-950/20 via-transparent to-transparent" />
+
               {bannerText && (
                 <div className="absolute bottom-3 left-3 right-14">
                   <div className="rounded-[14px] border border-white/60 bg-white/82 px-3 py-2 shadow-md backdrop-blur-md">
@@ -117,12 +115,12 @@ export default function Hero({ activeCategory, onCategoryChange }) {
         </section>
       )}
 
-      {/* ── PC: Banner + Left Category Sidebar side-by-side ── */}
       {bannerActive && (
-        <section className="hidden lg:block bg-white border-b border-slate-100">
+        <section className="hidden border-b border-slate-100 bg-white lg:block">
           <div className="mx-auto max-w-7xl px-6 py-5 lg:px-8">
-            <div className="grid grid-cols-[220px,minmax(0,1fr)] xl:grid-cols-[240px,minmax(0,1fr)] gap-5 items-start">
+            <div className="grid grid-cols-[220px,minmax(0,1fr)] items-start gap-5 xl:grid-cols-[240px,minmax(0,1fr)]">
               <PcCategorySidebar />
+
               <div className="relative overflow-hidden rounded-[22px] shadow-[0_12px_48px_rgba(15,23,42,0.12)]">
                 {pcImg ? (
                   <img
@@ -133,7 +131,9 @@ export default function Hero({ activeCategory, onCategoryChange }) {
                 ) : (
                   <div className="h-[280px] w-full bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-100 xl:h-[320px]" />
                 )}
+
                 <div className="absolute inset-0 bg-gradient-to-r from-slate-950/30 via-transparent to-transparent" />
+
                 {bannerText && (
                   <div className="absolute bottom-5 left-5">
                     <div className="max-w-xs rounded-[18px] border border-white/60 bg-white/82 px-4 py-3 shadow-lg backdrop-blur-md">
@@ -152,13 +152,15 @@ export default function Hero({ activeCategory, onCategoryChange }) {
         </section>
       )}
 
-      {/* ── PC: No banner but show sidebar anyway so categories are always visible ── */}
       {!bannerActive && (
-        <section className="hidden lg:block bg-white border-b border-slate-100">
+        <section className="hidden border-b border-slate-100 bg-white lg:block">
           <div className="mx-auto max-w-7xl px-6 py-4 lg:px-8">
             <div className="w-[220px] xl:w-[240px]">
               <PcCategorySidebar />
             </div>
           </div>
         </section>
-      
+      )}
+    </>
+  );
+}
