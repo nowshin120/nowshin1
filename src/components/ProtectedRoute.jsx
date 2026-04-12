@@ -1,34 +1,23 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-@layer base {
-  html {
-    scroll-behavior: smooth;
+export default function ProtectedRoute({ children }) {
+  const { user, isAdmin, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-gray-500 text-sm">লোড হচ্ছে...</p>
+        </div>
+      </div>
+    );
   }
 
-  body {
-    @apply bg-soft-white text-charcoal font-english antialiased;
-    background-image:
-      radial-gradient(circle at top left, rgba(59, 130, 246, 0.06), transparent 22%),
-      linear-gradient(180deg, #fafafa 0%, #f8fafc 100%);
+  if (!user || !isAdmin) {
+    return <Navigate to="/login" replace />;
   }
 
-  ::selection {
-    background: rgba(37, 99, 235, 0.18);
-  }
-}
-
-@layer components {
-  .btn-primary {
-    @apply bg-deep-burgundy text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:bg-opacity-90 hover:shadow-lg;
-  }
-
-  .btn-secondary {
-    @apply border-2 border-deep-burgundy text-deep-burgundy px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:bg-deep-burgundy hover:text-white;
-  }
-
-  .card-shadow {
-    @apply shadow-md hover:shadow-xl transition-shadow duration-300;
-  }
+  return children;
 }
