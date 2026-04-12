@@ -43,6 +43,7 @@ const EMPTY_FORM = {
   image_url: '',
 };
 
+
 const CLOUDINARY_CLOUD_NAME =
   import.meta.env.VITE_CLOUDINARY_CLOUD_NAME ||
   import.meta.env.VITE_CLOUDINARY_CLOUDNAME ||
@@ -924,29 +925,30 @@ export default function AdminDashboard() {
 
                 <div className="space-y-4">
                   {categoryStats.map((category) => {
-                    const percentage = products.length
-                      ? Math.round((category.count / products.length) * 100)
-                      : 0;
+  const percentage = products.length
+    ? Math.round((category.count / products.length) * 100)
+    : 0;
 
-                    return (
-                      <div key={category.slug}>
-                        <div className="mb-1.5 flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-700">
-                            {getCategoryLabel(category, 'bn')}
-                          </span>
-                          <span className="text-sm text-gray-500">
-                            {category.count}টি ({percentage}%)
-                          </span>
-                        </div>
-                        <div className="h-2.5 overflow-hidden rounded-full bg-gray-100">
-                          <div
-                            className="h-full rounded-full bg-blue-500 transition-all duration-300"
-                            style={{ width: `${percentage}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
+  return (
+    <div key={category.slug}>
+      <div className="mb-1.5 flex items-center justify-between">
+        <span className="text-sm font-medium text-gray-700">
+          {getCategoryLabel(category, 'bn')}
+        </span>
+        <span className="text-sm text-gray-500">
+          {category.count}টি ({percentage}%)
+        </span>
+      </div>
+      <div className="h-2.5 overflow-hidden rounded-full bg-gray-100">
+        <div
+          className="h-full rounded-full bg-blue-500 transition-all duration-300"
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+    </div>
+  );
+})}
+
                 </div>
               </div>
             </div>
@@ -1098,22 +1100,23 @@ export default function AdminDashboard() {
                       <label className="mb-1.5 block text-xs font-bold uppercase tracking-[0.2em] text-gray-500">
                         ক্যাটাগরি
                       </label>
-                      <select
-                        value={formData.category_slug}
-                        onChange={(event) =>
-                          setFormData((current) => ({
-                            ...current,
-                            category_slug: event.target.value,
-                          }))
-                        }
-                        className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-blue-400"
-                      >
-                        {PRODUCT_CATEGORIES.map((category) => (
-                          <option key={category.slug} value={category.slug}>
-                            {getCategoryLabel(category, 'bn')} ({category.labelEn})
-                          </option>
-                        ))}
-                      </select>
+                     <select
+  value={formData.category_slug}
+  onChange={(event) =>
+    setFormData((current) => ({
+      ...current,
+      category_slug: event.target.value,
+    }))
+  }
+  className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-blue-400"
+>
+  {PRODUCT_CATEGORIES.map((category) => (
+    <option key={category.slug} value={category.slug}>
+      {getCategoryLabel(category, 'bn')} ({category.labelEn})
+    </option>
+  ))}
+</select>
+
                     </div>
 
                     <div>
