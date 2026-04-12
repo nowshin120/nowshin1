@@ -1,3 +1,4 @@
+/// src/pages/AdminDashboard.jsx ///
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -7,6 +8,7 @@ import {
   Megaphone, KeyRound, CheckCircle2, AlertCircle, X, Upload,
   LayoutDashboard, Image as ImageIcon, MessageCircle, Settings,
   ShoppingBag, Eye, EyeOff, Menu, Star, BarChart2, Home,
+  Smartphone, Monitor,
 } from 'lucide-react';
 
 const CATEGORIES = [
@@ -81,6 +83,41 @@ function SupportMessages({ onClose }) {
   );
 }
 
+// ── Reusable image uploader row ──────────────────────────────────────────────
+function BannerImageUploader({ label, hint, accentColor, preview, onFileChange, onClear }) {
+  const borderHover = accentColor === 'amber' ? 'hover:border-amber-400 hover:text-amber-600' : 'hover:border-blue-400 hover:text-blue-600';
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-1.5">
+        <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">{label}</label>
+        {hint && <span className="text-[10px] text-gray-400 bg-gray-100 rounded-full px-2 py-0.5">{hint}</span>}
+      </div>
+      <div className="flex items-start gap-3">
+        <label className={`flex items-center gap-2 cursor-pointer border-2 border-dashed border-gray-200 ${borderHover} rounded-xl px-4 py-2.5 text-sm text-gray-500 transition-colors`}>
+          <Upload size={15} /> ছবি আপলোড
+          <input type="file" accept="image/*" className="hidden" onChange={onFileChange} />
+        </label>
+        {preview ? (
+          <div className="relative">
+            <img src={preview} alt="preview" className="w-28 h-16 object-cover rounded-xl border border-gray-100" />
+            <button
+              type="button"
+              onClick={onClear}
+              className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-0.5 shadow"
+            >
+              <X size={11} />
+            </button>
+          </div>
+        ) : (
+          <div className="w-28 h-16 rounded-xl border-2 border-dashed border-gray-100 flex items-center justify-center text-gray-300">
+            <ImageIcon size={20} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const { user, logout, updatePassword } = useAuth();
   const navigate = useNavigate();
@@ -101,11 +138,16 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSupport, setShowSupport] = useState(false);
 
+  // Banner — PC
   const [bannerText, setBannerText] = useState('');
   const [bannerActive, setBannerActive] = useState(true);
   const [bannerImageFile, setBannerImageFile] = useState(null);
   const [bannerImagePreview, setBannerImagePreview] = useState('');
   const [bannerImageUrl, setBannerImageUrl] = useState('');
+  // Banner — Mobile
+  const [bannerMobileImageFile, setBannerMobileImageFile] = useState(null);
+  const [bannerMobileImagePreview, setBannerMobileImagePreview] = useState('');
+  const [bannerMobileImageUrl, setBannerMobileImageUrl] = useState('');
 
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -121,7 +163,9 @@ export default function AdminDashboard() {
     const [prodRes, userRes, settingsRes, msgRes] = await Promise.all([
       supabase.from('products').select('*').order('created_at', { ascending: false }),
       supabase.from('admin_users').select('*', { count: 'exact', head: true }),
-      supabase.from('site_settings').select('key,value').in('key', ['banner_text', 'banner_active', 'banner_image_url']),
+      supabase.from('site_settings').select('key,value').in('key', [
+        'banner_text', 'banner_active', 'banner_image_url', 'banner_image_url_mobile',
+      ]),
       supabase.from('support_messages').select('*', { count: 'exact', head: true }),
     ]);
     setProducts(prodRes.data ?? []);
@@ -134,6 +178,10 @@ export default function AdminDashboard() {
         if (s.key === 'banner_image_url') {
           setBannerImageUrl(s.value ?? '');
           setBannerImagePreview(s.value ?? '');
+        }
+        if (s.key === 'banner_image_url_mobile') {
+          setBannerMobileImageUrl(s.value ?? '');
+          setBannerMobileImagePreview(s.value ?? '');
         }
       });
     }
@@ -169,6 +217,14 @@ export default function AdminDashboard() {
     if (file.size > 5 * 1024 * 1024) { showToast('error', 'ছবি ৫MB এর বেশি হবে না।'); return; }
     setBannerImageFile(file);
     setBannerImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleBannerMobileImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { showToast('error', 'ছবি ৫MB এর বেশি হবে না।'); return; }
+    setBannerMobileImageFile(file);
+    setBannerMobileImagePreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = async (e) => {
@@ -222,17 +278,25 @@ export default function AdminDashboard() {
   const handleBannerSave = async () => {
     setLoading(true);
     try {
-      let finalImageUrl = bannerImageUrl;
-      if (bannerImageFile) finalImageUrl = await uploadToCloudinary(bannerImageFile);
+      let finalUrl = bannerImageUrl;
+      if (bannerImageFile) finalUrl = await uploadToCloudinary(bannerImageFile);
+
+      let finalMobileUrl = bannerMobileImageUrl;
+      if (bannerMobileImageFile) finalMobileUrl = await uploadToCloudinary(bannerMobileImageFile);
+
       const updates = [
         { key: 'banner_text', value: bannerText, updated_at: new Date().toISOString() },
         { key: 'banner_active', value: String(bannerActive), updated_at: new Date().toISOString() },
-        { key: 'banner_image_url', value: finalImageUrl, updated_at: new Date().toISOString() },
+        { key: 'banner_image_url', value: finalUrl, updated_at: new Date().toISOString() },
+        { key: 'banner_image_url_mobile', value: finalMobileUrl, updated_at: new Date().toISOString() },
       ];
       const { error } = await supabase.from('site_settings').upsert(updates);
       if (error) throw error;
-      setBannerImageUrl(finalImageUrl);
+
+      setBannerImageUrl(finalUrl);
       setBannerImageFile(null);
+      setBannerMobileImageUrl(finalMobileUrl);
+      setBannerMobileImageFile(null);
       showToast('success', 'ব্যানার আপডেট হয়েছে!');
     } catch (err) { showToast('error', err.message); }
     finally { setLoading(false); }
@@ -305,7 +369,6 @@ export default function AdminDashboard() {
           'lg:translate-x-0 lg:static lg:z-auto',
         ].join(' ')}
       >
-        {/* Logo */}
         <div className="p-5 border-b border-gray-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -317,16 +380,12 @@ export default function AdminDashboard() {
                 <p className="text-xs text-gray-400">Admin Panel</p>
               </div>
             </div>
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-1 hover:bg-gray-100 rounded-lg"
-            >
+            <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 hover:bg-gray-100 rounded-lg">
               <X size={16} />
             </button>
           </div>
         </div>
 
-        {/* Nav items */}
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pt-2 pb-1">মেনু</p>
           {navItems.map(({ id, label, icon: Icon }) => (
@@ -362,7 +421,6 @@ export default function AdminDashboard() {
                 </span>
               )}
             </button>
-            {/* KEY FIX: <a> must be a direct child of <div>, not nested inside another element */}
             <a
               href="/"
               target="_blank"
@@ -375,7 +433,6 @@ export default function AdminDashboard() {
           </div>
         </nav>
 
-        {/* User + Logout */}
         <div className="p-3 border-t border-gray-100">
           <div className="flex items-center gap-3 px-3 py-2 mb-1">
             <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-bold text-sm flex-shrink-0">
@@ -398,7 +455,6 @@ export default function AdminDashboard() {
 
       {/* ===== MAIN ===== */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top bar */}
         <header className="bg-white border-b border-gray-100 sticky top-0 z-20 px-4 py-3 flex items-center gap-3">
           <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 hover:bg-gray-100 rounded-xl">
             <Menu size={20} className="text-gray-600" />
@@ -650,11 +706,7 @@ export default function AdminDashboard() {
                       </label>
                       {imagePreview && (
                         <div className="relative">
-                          <img
-                            src={imagePreview}
-                            alt="preview"
-                            className="w-16 h-16 object-cover rounded-xl border border-gray-100"
-                          />
+                          <img src={imagePreview} alt="preview" className="w-16 h-16 object-cover rounded-xl border border-gray-100" />
                           <button
                             type="button"
                             onClick={() => { setImageFile(null); setImagePreview(''); setFormData((f) => ({ ...f, image_url: '' })); }}
@@ -714,12 +766,17 @@ export default function AdminDashboard() {
           {tab === 'banner' && (
             <div className="max-w-xl space-y-4">
               <div className="bg-white rounded-2xl border border-gray-100 p-5">
-                <h2 className="font-semibold text-gray-800 mb-5 flex items-center gap-2">
+                <h2 className="font-semibold text-gray-800 mb-1 flex items-center gap-2">
                   <Megaphone size={18} className="text-amber-500" /> ব্যানার ম্যানেজমেন্ট
                 </h2>
-                <div className="space-y-4">
+                <p className="text-xs text-gray-400 mb-5">
+                  ফোন ও কম্পিউটারের জন্য আলাদা আলাদা ব্যানার ছবি আপলোড করুন।
+                </p>
+
+                <div className="space-y-5">
+                  {/* Banner Text */}
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">ব্যানার টেক্সট</label>
+                    <label className="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wide">ব্যানার টেক্সট</label>
                     <input
                       type="text"
                       value={bannerText}
@@ -729,32 +786,46 @@ export default function AdminDashboard() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">ব্যানার ছবি</label>
-                    <div className="flex items-start gap-3">
-                      <label className="flex items-center gap-2 cursor-pointer border-2 border-dashed border-gray-200 hover:border-amber-400 rounded-xl px-4 py-3 text-sm text-gray-500 hover:text-amber-600 transition-colors">
-                        <Upload size={16} /> ছবি আপলোড করুন
-                        <input type="file" accept="image/*" className="hidden" onChange={handleBannerImageChange} />
-                      </label>
-                      {bannerImagePreview && (
-                        <div className="relative">
-                          <img
-                            src={bannerImagePreview}
-                            alt="banner preview"
-                            className="w-24 h-16 object-cover rounded-xl border border-gray-100"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => { setBannerImageFile(null); setBannerImagePreview(''); setBannerImageUrl(''); }}
-                            className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-0.5 shadow"
-                          >
-                            <X size={11} />
-                          </button>
-                        </div>
-                      )}
+                  {/* PC Banner */}
+                  <div className="rounded-xl border border-blue-100 bg-blue-50/40 p-4 space-y-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Monitor size={16} className="text-blue-600" />
+                      <span className="text-sm font-bold text-blue-700">কম্পিউটার ব্যানার</span>
+                      <span className="text-[10px] text-blue-400 bg-blue-100 rounded-full px-2 py-0.5">
+                        প্রস্থ: ১৪৪০×৪২০ px বা wide ratio
+                      </span>
                     </div>
+                    <BannerImageUploader
+                      label="PC ছবি আপলোড"
+                      accentColor="blue"
+                      preview={bannerImagePreview}
+                      onFileChange={handleBannerImageChange}
+                      onClear={() => { setBannerImageFile(null); setBannerImagePreview(''); setBannerImageUrl(''); }}
+                    />
                   </div>
 
+                  {/* Mobile Banner */}
+                  <div className="rounded-xl border border-amber-100 bg-amber-50/40 p-4 space-y-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Smartphone size={16} className="text-amber-600" />
+                      <span className="text-sm font-bold text-amber-700">মোবাইল ব্যানার</span>
+                      <span className="text-[10px] text-amber-500 bg-amber-100 rounded-full px-2 py-0.5">
+                        প্রস্থ: ৭৫০×৪৫০ px বা 4:3 ratio
+                      </span>
+                    </div>
+                    <BannerImageUploader
+                      label="Mobile ছবি আপলোড"
+                      accentColor="amber"
+                      preview={bannerMobileImagePreview}
+                      onFileChange={handleBannerMobileImageChange}
+                      onClear={() => { setBannerMobileImageFile(null); setBannerMobileImagePreview(''); setBannerMobileImageUrl(''); }}
+                    />
+                    <p className="text-[11px] text-amber-600">
+                      💡 মোবাইল ছবি না দিলে স্বয়ংক্রিয়ভাবে PC ছবিই দেখাবে।
+                    </p>
+                  </div>
+
+                  {/* Status toggle */}
                   <div className="flex items-center justify-between bg-gray-50 rounded-xl p-3">
                     <div>
                       <p className="text-sm font-medium text-gray-700">ব্যানার স্ট্যাটাস</p>
