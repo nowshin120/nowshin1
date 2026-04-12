@@ -1,17 +1,28 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Footprints,
+  Grid2x2,
   Laptop2,
+  MessageCircle,
   Search,
+  ShoppingCart,
   Smartphone,
+  UserCircle2,
   Watch,
+  X,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useLanguage } from '../../context/LanguageContext';
-import { PRODUCT_CATEGORIES, SHOP_CATEGORIES, getCategoryLabel } from '../../constants/shopCategories';
+import {
+  FEATURED_HOME_CATEGORIES,
+  SHOP_CATEGORIES,
+  getCategoryLabel,
+} from '../../constants/shopCategories';
 
 const ROTATION_MS = 3800;
 const MAX_BANNERS = 4;
+const WHATSAPP_URL = 'https://wa.me/8801946223113';
 
 const QUICK_ACTIONS = [
   {
@@ -68,6 +79,13 @@ function parseSlides(value) {
   }
 }
 
+function scrollToSection(sectionId) {
+  const element = document.getElementById(sectionId);
+  if (!element) return;
+
+  element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 function BannerStage({ slides, currentIndex, heightClass, roundedClass }) {
   if (!slides.length) {
     return (
@@ -90,7 +108,7 @@ function BannerStage({ slides, currentIndex, heightClass, roundedClass }) {
           alt="Nowshin banner"
           className={[
             'absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ease-out',
-            index === currentIndex ? 'scale-100 opacity-100' : 'scale-[1.04] opacity-0',
+            index === currentIndex ? 'scale-100 opacity-100' : 'scale-[1.03] opacity-0',
           ].join(' ')}
         />
       ))}
@@ -98,7 +116,7 @@ function BannerStage({ slides, currentIndex, heightClass, roundedClass }) {
   );
 }
 
-function SlideDots({ slides, currentIndex }) {
+function SlideDots({ slides, currentIndex, dark = false }) {
   if (slides.length <= 1) return null;
 
   return (
@@ -108,7 +126,13 @@ function SlideDots({ slides, currentIndex }) {
           key={slide.id}
           className={[
             'h-2 rounded-full transition-all duration-300',
-            index === currentIndex ? 'w-7 bg-slate-950' : 'w-2 bg-white/70',
+            index === currentIndex
+              ? dark
+                ? 'w-7 bg-slate-950'
+                : 'w-7 bg-white'
+              : dark
+                ? 'w-2 bg-slate-300'
+                : 'w-2 bg-white/65',
           ].join(' ')}
         />
       ))}
@@ -128,8 +152,8 @@ function DesktopSidebar({ activeCategory, language, onCategoryChange }) {
         </h2>
         <p className="mt-1 text-xs leading-5 text-slate-500">
           {language === 'en'
-            ? 'Curated sections for trending products.'
-            : 'ট্রেন্ডিং পণ্যের জন্য সুন্দরভাবে সাজানো সেকশন।'}
+            ? 'All old and new collections in one place.'
+            : 'পুরনো আর নতুন সব কালেকশন এক জায়গা থেকে বেছে নিন।'}
         </p>
       </div>
 
@@ -153,18 +177,53 @@ function DesktopSidebar({ activeCategory, language, onCategoryChange }) {
   );
 }
 
+function MobileBottomBar({ onCategoriesOpen, onCartClick, onAccountClick }) {
+  const actionClass =
+    'flex flex-1 flex-col items-center justify-center gap-1 rounded-2xl py-2 text-[11px] font-semibold text-slate-600 transition-colors active:scale-[0.98]';
+
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/96 px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3 shadow-[0_-14px_40px_rgba(15,23,42,0.12)] backdrop-blur-md lg:hidden">
+      <div className="mx-auto flex max-w-xl items-center gap-2 rounded-[24px] bg-slate-50/90 p-2">
+        <button type="button" onClick={onCategoriesOpen} className={actionClass}>
+          <Grid2x2 size={18} />
+          <span>Category</span>
+        </button>
+        <button type="button" onClick={onCartClick} className={actionClass}>
+          <ShoppingCart size={18} />
+          <span>Cart</span>
+        </button>
+        <a
+          href={WHATSAPP_URL}
+          target="_blank"
+          rel="noreferrer"
+          className={`${actionClass} bg-emerald-50 text-emerald-700`}
+        >
+          <MessageCircle size={18} />
+          <span>Message</span>
+        </a>
+        <button type="button" onClick={onAccountClick} className={actionClass}>
+          <UserCircle2 size={18} />
+          <span>Account</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function Hero({
   activeCategory,
   onCategoryChange,
   searchQuery,
   onSearchChange,
 }) {
+  const navigate = useNavigate();
   const [bannerText, setBannerText] = useState('');
   const [bannerActive, setBannerActive] = useState(true);
   const [desktopSlides, setDesktopSlides] = useState([]);
   const [mobileSlides, setMobileSlides] = useState([]);
   const [desktopIndex, setDesktopIndex] = useState(0);
   const [mobileIndex, setMobileIndex] = useState(0);
+  const [mobileCategorySheetOpen, setMobileCategorySheetOpen] = useState(false);
   const { language } = useLanguage();
   const isEnglish = language === 'en';
 
@@ -251,16 +310,24 @@ export default function Hero({
   const activeQuickActions = useMemo(() => {
     return QUICK_ACTIONS.map((item) => ({
       ...item,
-      meta: PRODUCT_CATEGORIES.find((category) => category.slug === item.slug),
+      meta: FEATURED_HOME_CATEGORIES.find((category) => category.slug === item.slug),
     })).filter((item) => item.meta);
   }, []);
 
   const activeDesktopIndex = desktopSlides.length ? desktopIndex % desktopSlides.length : 0;
   const activeMobileIndex = mobileSlides.length ? mobileIndex % mobileSlides.length : 0;
 
+  const handleCategorySelect = (slug) => {
+    onCategoryChange(slug);
+    setMobileCategorySheetOpen(false);
+    window.setTimeout(() => {
+      scrollToSection('products-section');
+    }, 80);
+  };
+
   return (
     <>
-      <div className="sticky top-16 z-30 border-b border-slate-100 bg-white/95 shadow-[0_12px_30px_rgba(15,23,42,0.05)] backdrop-blur-md lg:hidden">
+      <div className="sticky top-16 z-30 border-b border-slate-100 bg-white/98 shadow-[0_12px_24px_rgba(15,23,42,0.05)] backdrop-blur-md lg:hidden">
         <div className="mx-auto max-w-7xl px-4 py-3">
           <div className="relative">
             <Search
@@ -274,52 +341,6 @@ export default function Hero({
               placeholder={isEnglish ? 'Search products...' : 'পণ্য খুঁজুন...'}
               className="w-full rounded-[18px] border border-slate-200 bg-white py-3 pl-11 pr-4 text-sm text-slate-700 outline-none transition focus:border-slate-300"
             />
-          </div>
-
-          <div className="mt-3 grid grid-cols-2 gap-3">
-            {activeQuickActions.map(({ slug, meta, icon: Icon, iconWrap, card }) => (
-              <button
-                key={slug}
-                onClick={() => onCategoryChange(slug)}
-                className={[
-                  'rounded-[20px] border p-3 text-left shadow-[0_8px_24px_rgba(15,23,42,0.06)] transition-all duration-200 active:scale-[0.98]',
-                  card,
-                  activeCategory === slug ? 'ring-2 ring-slate-900/10' : '',
-                ].join(' ')}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className={['flex h-10 w-10 items-center justify-center rounded-2xl', iconWrap].join(' ')}>
-                    <Icon size={18} />
-                  </div>
-                  <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
-                    {activeCategory === slug ? (isEnglish ? 'Live' : 'চালু') : 'Go'}
-                  </span>
-                </div>
-                <p className="mt-3 text-sm font-bold text-slate-900">
-                  {getCategoryLabel(meta, language)}
-                </p>
-              </button>
-            ))}
-          </div>
-
-          <div
-            className="mt-3 flex items-center gap-2 overflow-x-auto pb-1"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {SHOP_CATEGORIES.map((category) => (
-              <button
-                key={category.slug}
-                onClick={() => onCategoryChange(category.slug)}
-                className={[
-                  'whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200',
-                  activeCategory === category.slug
-                    ? 'border-slate-950 bg-slate-950 text-white'
-                    : 'border-slate-200 bg-white text-slate-600',
-                ].join(' ')}
-              >
-                {getCategoryLabel(category, language)}
-              </button>
-            ))}
           </div>
         </div>
       </div>
@@ -336,34 +357,61 @@ export default function Hero({
                 />
               </div>
 
-              <div className="relative">
+              <div className="relative min-w-0">
+                <div className="mb-4 grid grid-cols-2 gap-3 lg:hidden">
+                  {activeQuickActions.map(({ slug, meta, icon: Icon, iconWrap, card }) => (
+                    <button
+                      key={slug}
+                      type="button"
+                      onClick={() => handleCategorySelect(slug)}
+                      className={[
+                        'rounded-[22px] border p-4 text-left shadow-[0_8px_24px_rgba(15,23,42,0.06)] transition-all duration-200 active:scale-[0.98]',
+                        card,
+                        activeCategory === slug ? 'ring-2 ring-slate-900/10' : '',
+                      ].join(' ')}
+                    >
+                      <div className={['flex h-11 w-11 items-center justify-center rounded-2xl', iconWrap].join(' ')}>
+                        <Icon size={20} />
+                      </div>
+                      <p className="mt-3 text-sm font-bold text-slate-900">
+                        {getCategoryLabel(meta, language)}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {isEnglish ? 'Tap to browse' : 'দেখতে ট্যাপ করুন'}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+
                 <div className="block lg:hidden">
-                  <BannerStage
-                    slides={mobileSlides}
-                    currentIndex={activeMobileIndex}
-                    heightClass="h-[230px]"
-                    roundedClass="rounded-[28px]"
-                  />
+                  <div className="overflow-hidden rounded-[28px] border border-white/70 bg-white shadow-[0_18px_48px_rgba(15,23,42,0.10)]">
+                    <BannerStage
+                      slides={mobileSlides}
+                      currentIndex={activeMobileIndex}
+                      heightClass="h-[232px]"
+                      roundedClass=""
+                    />
+                  </div>
 
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 p-4">
                     <div className="flex items-end justify-between gap-4">
-                      <div className="rounded-[20px] bg-white/92 px-4 py-3 shadow-[0_10px_25px_rgba(15,23,42,0.12)] backdrop-blur-md">
+                      <div className="rounded-[20px] bg-white/94 px-4 py-3 shadow-[0_12px_30px_rgba(15,23,42,0.10)] backdrop-blur-sm">
                         <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400">
                           {isEnglish ? 'Featured' : 'ফিচার্ড'}
                         </p>
                         <h1 className="mt-1 text-base font-bold leading-tight text-slate-950">
-                          {bannerText || (isEnglish ? 'Smart picks for you' : 'আপনার জন্য স্মার্ট পিক')}
+                          {bannerText || (isEnglish ? 'Smart picks for you' : 'আপনার জন্য সেরা পছন্দ')}
                         </h1>
                       </div>
-                      <div className="rounded-full bg-white/85 px-3 py-2 shadow-[0_8px_24px_rgba(15,23,42,0.12)] backdrop-blur-md">
-                        <SlideDots slides={mobileSlides} currentIndex={activeMobileIndex} />
+                      <div className="rounded-full bg-white/90 px-3 py-2 shadow-[0_8px_24px_rgba(15,23,42,0.10)]">
+                        <SlideDots slides={mobileSlides} currentIndex={activeMobileIndex} dark />
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="hidden lg:block">
-                  <div className="overflow-hidden rounded-[28px] border border-white/70 bg-white/50 shadow-[0_18px_60px_rgba(15,23,42,0.12)]">
+                  <div className="overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.12)]">
                     <BannerStage
                       slides={desktopSlides}
                       currentIndex={activeDesktopIndex}
@@ -374,7 +422,7 @@ export default function Hero({
 
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 p-6 xl:p-7">
                     <div className="flex items-end justify-between gap-5">
-                      <div className="max-w-sm rounded-[24px] bg-white/92 px-5 py-4 shadow-[0_16px_38px_rgba(15,23,42,0.12)] backdrop-blur-md">
+                      <div className="max-w-sm rounded-[24px] bg-white/94 px-5 py-4 shadow-[0_16px_38px_rgba(15,23,42,0.10)] backdrop-blur-sm">
                         <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400">
                           {isEnglish ? 'Now showing' : 'এখন দেখুন'}
                         </p>
@@ -383,8 +431,8 @@ export default function Hero({
                         </h1>
                       </div>
 
-                      <div className="rounded-full bg-white/88 px-4 py-3 shadow-[0_10px_25px_rgba(15,23,42,0.12)] backdrop-blur-md">
-                        <SlideDots slides={desktopSlides} currentIndex={activeDesktopIndex} />
+                      <div className="rounded-full bg-white/90 px-4 py-3 shadow-[0_10px_25px_rgba(15,23,42,0.10)]">
+                        <SlideDots slides={desktopSlides} currentIndex={activeDesktopIndex} dark />
                       </div>
                     </div>
                   </div>
@@ -406,6 +454,60 @@ export default function Hero({
           </div>
         </section>
       )}
+
+      {mobileCategorySheetOpen ? (
+        <div className="fixed inset-0 z-50 bg-slate-950/40 lg:hidden">
+          <button
+            type="button"
+            className="absolute inset-0 h-full w-full cursor-default"
+            onClick={() => setMobileCategorySheetOpen(false)}
+            aria-label="Close category panel"
+          />
+          <div className="absolute inset-x-0 bottom-0 rounded-t-[28px] bg-white px-4 pb-8 pt-5 shadow-[0_-20px_45px_rgba(15,23,42,0.16)]">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400">
+                  {isEnglish ? 'Browse' : 'ব্রাউজ'}
+                </p>
+                <h3 className="mt-1 text-lg font-bold text-slate-950">
+                  {isEnglish ? 'All categories' : 'সব ক্যাটাগরি'}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileCategorySheetOpen(false)}
+                className="rounded-full border border-slate-200 p-2 text-slate-500"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {SHOP_CATEGORIES.map((category) => (
+                <button
+                  key={category.slug}
+                  type="button"
+                  onClick={() => handleCategorySelect(category.slug)}
+                  className={[
+                    'rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition-colors',
+                    activeCategory === category.slug
+                      ? 'border-slate-950 bg-slate-950 text-white'
+                      : 'border-slate-200 bg-white text-slate-700',
+                  ].join(' ')}
+                >
+                  {getCategoryLabel(category, language)}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      <MobileBottomBar
+        onCategoriesOpen={() => setMobileCategorySheetOpen(true)}
+        onCartClick={() => scrollToSection('products-section')}
+        onAccountClick={() => navigate('/login')}
+      />
     </>
   );
 }
