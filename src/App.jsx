@@ -15,6 +15,7 @@ import ProductListing from './pages/ProductListing';
 
 function PublicHome() {
   const [activeCategory, setActiveCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   return (
     <div className="min-h-screen flex flex-col bg-soft-white">
@@ -22,10 +23,13 @@ function PublicHome() {
       <Hero
         activeCategory={activeCategory}
         onCategoryChange={setActiveCategory}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
       <HomePage
         activeCategory={activeCategory}
         onCategoryChange={setActiveCategory}
+        searchQuery={searchQuery}
       />
       <Footer />
       <WhatsAppButton />
