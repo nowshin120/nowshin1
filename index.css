@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-soft-white text-charcoal font-english;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-deep-burgundy text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:bg-opacity-90 hover:shadow-lg;
+  }
+  
+  .btn-secondary {
+    @apply border-2 border-deep-burgundy text-deep-burgundy px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:bg-deep-burgundy hover:text-white;
+  }
+  
+  .card-shadow {
+    @apply shadow-md hover:shadow-xl transition-shadow duration-300;
+  }
+}
