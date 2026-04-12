@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useLanguage } from '../context/LanguageContext';
 import ProductCard from '../components/ProductCard/ProductCard';
 import CheckoutModal from '../components/CheckoutModal/CheckoutModal';
-import { NAV_CATEGORIES, getCategoryLabel } from '../constants/shopCategories';
+import { findCategoryBySlug, getCategoryLabel } from '../constants/shopCategories';
 
 export default function ProductListing() {
   const { category } = useParams();
@@ -15,7 +15,7 @@ export default function ProductListing() {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const matchedCategory = NAV_CATEGORIES.find((item) => item.slug === category);
+  const matchedCategory = findCategoryBySlug(category);
   const categoryTitle = getCategoryLabel(matchedCategory, language) || category;
 
   useEffect(() => {
