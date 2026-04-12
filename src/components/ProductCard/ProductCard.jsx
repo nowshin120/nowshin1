@@ -6,9 +6,27 @@ export default function ProductCard({ product, onBuyNow }) {
   const { language, t } = useLanguage();
   const imageUrl = product.image_url || product.image || null;
   const deliveryCharge = product.delivery_charge ?? product.deliveryCharge ?? null;
+
   const categoryMeta = SHOP_CATEGORIES.find(
     (category) => category.slug === product.category_slug
   );
+
+  let deliveryText = null;
+
+  if (deliveryCharge === 0 || deliveryCharge === '0') {
+    deliveryText =
+      language === 'en' ? 'Free delivery available' : 'ফ্রি ডেলিভারি উপলব্ধ';
+  } else if (deliveryCharge) {
+    deliveryText =
+      language === 'en'
+        ? `Delivery: ৳${Number(deliveryCharge).toLocaleString()}`
+        : `ডেলিভারি: ৳${Number(deliveryCharge).toLocaleString()}`;
+  } else {
+    deliveryText =
+      language === 'en'
+        ? 'Delivery charge shown at checkout'
+        : 'চেকআউটে ডেলিভারি চার্জ দেখানো হবে';
+  }
 
   return (
     <div className="group overflow-hidden rounded-[24px] border border-slate-200/80 bg-white shadow-[0_14px_36px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_24px_60px_rgba(15,23,42,0.14)]">
@@ -32,8 +50,10 @@ export default function ProductCard({ product, onBuyNow }) {
               alt={product.name}
               className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
               onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.nextSibling.style.display = 'flex';
+                e.currentTarget.style.display = 'none';
+                if (e.currentTarget.nextElementSibling) {
+                  e.currentTarget.nextElementSibling.style.display = 'flex';
+                }
               }}
             />
           ) : null}
@@ -59,11 +79,11 @@ export default function ProductCard({ product, onBuyNow }) {
               {product.name}
             </h3>
 
-            {product.description && (
+            {product.description ? (
               <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-500">
                 {product.description}
               </p>
-            )}
+            ) : null}
           </div>
 
           <div className="rounded-2xl bg-slate-50 px-3 py-2 text-right">
@@ -77,22 +97,15 @@ export default function ProductCard({ product, onBuyNow }) {
         </div>
 
         <div className="mb-5 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-          {deliveryCharge === 0 || deliveryCharge === '0' ? (
-            <span className="font-medium text-emerald-600">
-              {language === 'en' ? 'Free delivery available' : 'ফ্রি ডেলিভারি উপলব্ধ'}
-            </span>
-          ) : deliveryCharge ? (
-            <span>
-              {language === 'en' ? 'Delivery' : 'ডেলিভারি'}: ৳
-              {Number(deliveryCharge).toLocaleString()}
-            </span>
-          ) : (
-            <span>
-              {language === 'en'
-                ? 'Delivery charge shown at checkout'
-                : 'চেকআউটে ডেলিভারি চার্জ দেখানো হবে'}
-            </span>
-          )}
+          <span
+            className={
+              deliveryCharge === 0 || deliveryCharge === '0'
+                ? 'font-medium text-emerald-600'
+                : ''
+            }
+          >
+            {deliveryText}
+          </span>
         </div>
 
         <button
@@ -102,22 +115,6 @@ export default function ProductCard({ product, onBuyNow }) {
           <ShoppingCart size={18} />
           {t('checkout.buyNow')}
           <ArrowRight size={16} />
-        </button>
-      </div>
-    </div>
-  );
-}
-            <span>ডেলিভারি: ৳{Number(deliveryCharge).toLocaleString()}</span>
-          ) : null}
-        </div>
-
-        {/* Buy Now Button */}
-        <button
-          onClick={() => onBuyNow(product)}
-          className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
-        >
-          <ShoppingCart size={18} />
-          {t('checkout.buyNow')}
         </button>
       </div>
     </div>
