@@ -4,7 +4,6 @@ import { useLanguage } from '../../context/LanguageContext';
 
 const PHONE_NUMBER = '8801946223113';
 const WHATSAPP_URL = `https://wa.me/${PHONE_NUMBER}`;
-const MESSENGER_URL = 'https://m.me/nowshinfashionhouse';
 const CALL_URL = 'tel:+8801946223113';
 
 const CONTACT_ACTIONS = [
@@ -20,7 +19,6 @@ const CONTACT_ACTIONS = [
     id: 'messenger',
     labelEn: 'Messenger',
     labelBn: 'মেসেঞ্জার',
-    href: MESSENGER_URL,
     bgClass: 'bg-sky-500 hover:bg-sky-600',
     icon: Send,
   },
@@ -47,15 +45,8 @@ export default function WhatsAppButton() {
               const Icon = action.icon;
               const label = isEnglish ? action.labelEn : action.labelBn;
 
-              return (
-                <a
-                  key={action.id}
-                  href={action.href}
-                  target={action.href.startsWith('http') ? '_blank' : undefined}
-                  rel={action.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                  className="group flex items-center gap-3"
-                  title={label}
-                >
+              const content = (
+                <>
                   <span className="rounded-full bg-slate-950/88 px-3 py-2 text-xs font-semibold text-white shadow-lg backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100">
                     {label}
                   </span>
@@ -67,6 +58,32 @@ export default function WhatsAppButton() {
                   >
                     <Icon size={24} />
                   </span>
+                </>
+              );
+
+              if (action.id === 'messenger') {
+                return (
+                  <button
+                    key={action.id}
+                    type="button"
+                    className="group flex items-center gap-3"
+                    title={label}
+                  >
+                    {content}
+                  </button>
+                );
+              }
+
+              return (
+                <a
+                  key={action.id}
+                  href={action.href}
+                  target={action.href.startsWith('http') ? '_blank' : undefined}
+                  rel={action.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  className="group flex items-center gap-3"
+                  title={label}
+                >
+                  {content}
                 </a>
               );
             })
