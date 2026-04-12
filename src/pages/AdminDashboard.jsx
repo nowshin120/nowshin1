@@ -77,26 +77,19 @@ function Toast({ type, message, onClose }) {
   );
 }
 
-function FilePickerCard({
-  title,
-  hint,
-  accent = 'blue',
-  preview,
-  onFileChange,
-  onClear,
-}) {
-  const accentClasses =
+function FilePickerCard({ title, hint, accent = 'blue', preview, onFileChange, onClear }) {
+  const wrapperClasses =
     accent === 'amber'
       ? 'border-amber-100 bg-amber-50/70 text-amber-700'
       : 'border-blue-100 bg-blue-50/70 text-blue-700';
 
-  const uploadClasses =
+  const uploaderClasses =
     accent === 'amber'
       ? 'hover:border-amber-400 hover:text-amber-600'
       : 'hover:border-blue-400 hover:text-blue-600';
 
   return (
-    <div className={`rounded-2xl border p-4 ${accentClasses}`}>
+    <div className={`rounded-2xl border p-4 ${wrapperClasses}`}>
       <div className="mb-3 flex items-center gap-2">
         {accent === 'amber' ? <Smartphone size={16} /> : <Monitor size={16} />}
         <h3 className="text-sm font-bold">{title}</h3>
@@ -111,7 +104,7 @@ function FilePickerCard({
         <label
           className={[
             'flex cursor-pointer items-center gap-2 rounded-xl border-2 border-dashed border-gray-200 px-4 py-3 text-sm text-gray-500 transition-colors',
-            uploadClasses,
+            uploaderClasses,
           ].join(' ')}
         >
           <Upload size={16} />
@@ -194,9 +187,7 @@ function SupportMessagesModal({ onClose }) {
                 <div className="mb-2 flex items-start justify-between gap-3">
                   <div>
                     <p className="font-semibold text-gray-900">{message.name || 'অজানা'}</p>
-                    {message.phone ? (
-                      <p className="text-xs text-blue-600">{message.phone}</p>
-                    ) : null}
+                    {message.phone ? <p className="text-xs text-blue-600">{message.phone}</p> : null}
                   </div>
                   <span className="text-xs text-gray-400">
                     {message.created_at
@@ -221,6 +212,7 @@ function DeleteConfirmModal({ onCancel, onConfirm, loading }) {
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
           <Trash2 size={20} className="text-red-600" />
         </div>
+
         <h3 className="text-center text-lg font-bold text-gray-900">ডিলিট নিশ্চিত করুন</h3>
         <p className="mt-2 text-center text-sm leading-6 text-gray-500">
           এই প্রোডাক্টটি স্থায়ীভাবে মুছে যাবে।
@@ -316,10 +308,12 @@ export default function AdminDashboard() {
     (settingsRes.data ?? []).forEach((item) => {
       if (item.key === 'banner_text') setBannerText(item.value ?? '');
       if (item.key === 'banner_active') setBannerActive(item.value !== 'false');
+
       if (item.key === 'banner_image_url') {
         setBannerImageUrl(item.value ?? '');
         setBannerImagePreview(item.value ?? '');
       }
+
       if (item.key === 'banner_image_url_mobile') {
         setBannerMobileImageUrl(item.value ?? '');
         setBannerMobileImagePreview(item.value ?? '');
@@ -539,6 +533,7 @@ export default function AdminDashboard() {
       setBannerImageUrl(finalBannerUrl);
       setBannerImagePreview(finalBannerUrl);
       setBannerImageFile(null);
+
       setBannerMobileImageUrl(finalBannerMobileUrl);
       setBannerMobileImagePreview(finalBannerMobileUrl);
       setBannerMobileImageFile(null);
