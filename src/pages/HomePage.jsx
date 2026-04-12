@@ -56,8 +56,8 @@ export default function HomePage({ activeCategory, onCategoryChange }) {
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
         <div className="grid gap-6 lg:grid-cols-[240px,minmax(0,1fr)] xl:grid-cols-[280px,minmax(0,1fr)]">
           <aside className="hidden lg:block">
-            <div className="sticky top-28 overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.06)]">
-              <div className="border-b border-slate-100 px-5 py-5">
+            <div className="sticky top-28 overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-[0_20px_48px_rgba(15,23,42,0.08)]">
+              <div className="border-b border-slate-100 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.08),_transparent_45%),linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] px-5 py-6">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
                   {language === 'en' ? 'Browse' : 'ব্রাউজ'}
                 </p>
@@ -88,7 +88,7 @@ export default function HomePage({ activeCategory, onCategoryChange }) {
           </aside>
 
           <main className="min-w-0">
-            <div className="mb-5 rounded-[28px] border border-slate-200 bg-white px-5 py-4 shadow-[0_14px_40px_rgba(15,23,42,0.04)] sm:px-6">
+            <div className="mb-6 rounded-[32px] border border-slate-200 bg-[radial-gradient(circle_at_top_right,_rgba(59,130,246,0.10),_transparent_28%),linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] px-5 py-5 shadow-[0_18px_46px_rgba(15,23,42,0.05)] sm:px-6">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
@@ -125,7 +125,7 @@ export default function HomePage({ activeCategory, onCategoryChange }) {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">
                 {products.map((product) => (
                   <ProductCard
                     key={product.id}
