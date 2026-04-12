@@ -1,10 +1,11 @@
-export const SHOP_CATEGORIES = [
-  {
-    slug: 'all',
-    labelBn: 'সব পণ্য',
-    labelEn: 'All Products',
-    badgeClass: 'bg-slate-100 text-slate-700',
-  },
+const ALL_PRODUCTS_CATEGORY = {
+  slug: 'all',
+  labelBn: 'সব পণ্য',
+  labelEn: 'All Products',
+  badgeClass: 'bg-slate-100 text-slate-700',
+};
+
+export const FEATURED_HOME_CATEGORIES = [
   {
     slug: 'phone',
     labelBn: 'ফোন',
@@ -28,12 +29,6 @@ export const SHOP_CATEGORIES = [
     labelBn: 'জুতা / কেডস',
     labelEn: 'Shoes & Keds',
     badgeClass: 'bg-rose-100 text-rose-700',
-  },
-  {
-    slug: 'kids-fashion',
-    labelBn: 'কিডস পোশাক',
-    labelEn: 'Kids Fashion',
-    badgeClass: 'bg-amber-100 text-amber-700',
   },
 ];
 
@@ -62,15 +57,24 @@ export const LEGACY_CATEGORIES = [
     labelEn: 'Kids',
     badgeClass: 'bg-yellow-100 text-yellow-700',
   },
+  {
+    slug: 'kids-fashion',
+    labelBn: 'কিডস পোশাক',
+    labelEn: 'Kids Fashion',
+    badgeClass: 'bg-amber-100 text-amber-700',
+  },
 ];
 
-export const PRODUCT_CATEGORIES = SHOP_CATEGORIES.filter(
-  (category) => category.slug !== 'all'
-);
+export const PRODUCT_CATEGORIES = [
+  ...FEATURED_HOME_CATEGORIES,
+  ...LEGACY_CATEGORIES,
+];
+
+export const SHOP_CATEGORIES = [ALL_PRODUCTS_CATEGORY, ...PRODUCT_CATEGORIES];
 
 export const NAV_CATEGORIES = PRODUCT_CATEGORIES;
 
-export const ALL_CATEGORIES = [...SHOP_CATEGORIES, ...LEGACY_CATEGORIES];
+export const ALL_CATEGORIES = SHOP_CATEGORIES;
 
 export function getCategoryLabel(category, language = 'bn') {
   if (!category) return '';
