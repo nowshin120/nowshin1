@@ -1,3 +1,4 @@
+/// src/components/ProductCard/ProductCard.jsx ///
 import { ArrowRight, Package, ShoppingCart } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { SHOP_CATEGORIES, getCategoryLabel } from '../../constants/shopCategories';
@@ -12,38 +13,38 @@ export default function ProductCard({ product, onBuyNow }) {
   );
 
   let deliveryText = null;
+  let isFreeDelivery = false;
 
   if (deliveryCharge === 0 || deliveryCharge === '0') {
-    deliveryText =
-      language === 'en' ? 'Free delivery available' : 'ফ্রি ডেলিভারি উপলব্ধ';
+    isFreeDelivery = true;
+    deliveryText = language === 'en' ? 'Free delivery' : 'ফ্রি ডেলিভারি';
   } else if (deliveryCharge) {
     deliveryText =
       language === 'en'
         ? `Delivery: ৳${Number(deliveryCharge).toLocaleString()}`
         : `ডেলিভারি: ৳${Number(deliveryCharge).toLocaleString()}`;
   } else {
-    deliveryText =
-      language === 'en'
-        ? 'Delivery charge shown at checkout'
-        : 'চেকআউটে ডেলিভারি চার্জ দেখানো হবে';
+    deliveryText = language === 'en' ? 'Delivery at checkout' : 'চেকআউটে ডেলিভারি';
   }
 
   return (
-    <div className="group overflow-hidden rounded-[24px] border border-slate-200/80 bg-white shadow-[0_14px_36px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_24px_60px_rgba(15,23,42,0.14)]">
-      <div className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-slate-100">
-        <div className="absolute inset-x-4 top-4 z-20 flex items-center justify-between gap-3">
-          <div className="rounded-full bg-emerald-500 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-sm">
-            {t('checkout.cod')}
+    <div className="group flex flex-col overflow-hidden rounded-[20px] border border-slate-200/80 bg-white shadow-[0_6px_24px_rgba(15,23,42,0.07)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(15,23,42,0.13)]">
+      {/* Image */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100">
+        {/* Badges */}
+        <div className="absolute inset-x-2 top-2 z-20 flex items-start justify-between gap-2 sm:inset-x-3 sm:top-3">
+          <div className="rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm sm:px-3 sm:py-1 sm:text-[11px]">
+            {language === 'en' ? 'COD' : 'ক্যাশ অন ডেলিভারি'}
           </div>
-
           {categoryMeta ? (
-            <div className="rounded-full border border-white/60 bg-white/80 px-3 py-1 text-xs font-medium text-slate-600 backdrop-blur-sm">
+            <div className="rounded-full border border-white/60 bg-white/85 px-2 py-0.5 text-[10px] font-medium text-slate-600 backdrop-blur-sm sm:px-2.5 sm:text-xs">
               {getCategoryLabel(categoryMeta, language)}
             </div>
           ) : null}
         </div>
 
-        <div className="relative h-64 overflow-hidden sm:h-72">
+        {/* Aspect-ratio image box — keeps 4:3 on all screen sizes */}
+        <div className="aspect-[4/3] w-full overflow-hidden">
           {imageUrl ? (
             <img
               src={imageUrl}
@@ -51,70 +52,70 @@ export default function ProductCard({ product, onBuyNow }) {
               className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
-                if (e.currentTarget.nextElementSibling) {
-                  e.currentTarget.nextElementSibling.style.display = 'flex';
-                }
+                const sibling = e.currentTarget.nextElementSibling;
+                if (sibling) sibling.style.display = 'flex';
               }}
             />
           ) : null}
 
           <div
-            className="h-full w-full items-center justify-center flex-col gap-2 text-gray-300"
+            className="h-full w-full flex-col items-center justify-center gap-2 text-slate-300"
             style={{ display: imageUrl ? 'none' : 'flex' }}
           >
-            <Package size={48} />
-            <span className="text-sm text-gray-400">
-              {language === 'en' ? 'No image available' : 'কোনো ছবি নেই'}
+            <Package size={36} />
+            <span className="text-xs text-slate-400">
+              {language === 'en' ? 'No image' : 'ছবি নেই'}
             </span>
           </div>
-
-          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-slate-950/20 to-transparent" />
         </div>
+
+        {/* Bottom gradient overlay */}
+        <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/15 to-transparent" />
       </div>
 
-      <div className="p-5">
-        <div className="mb-3 flex items-start justify-between gap-3">
-          <div>
-            <h3 className="text-lg font-semibold leading-7 text-charcoal transition-colors group-hover:text-slate-950">
-              {product.name}
-            </h3>
-
-            {product.description ? (
-              <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-500">
-                {product.description}
-              </p>
-            ) : null}
-          </div>
-
-          <div className="rounded-2xl bg-slate-50 px-3 py-2 text-right">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-              {language === 'en' ? 'Price' : 'দাম'}
-            </div>
-            <div className="mt-1 text-2xl font-bold text-blue-600">
+      {/* Content */}
+      <div className="flex flex-1 flex-col p-3 sm:p-4">
+        {/* Name + Price */}
+        <div className="mb-2 flex items-start justify-between gap-2">
+          <h3 className="flex-1 text-sm font-bold leading-snug text-slate-900 line-clamp-2 sm:text-base">
+            {product.name}
+          </h3>
+          <div className="shrink-0 text-right">
+            <div className="text-base font-extrabold text-blue-600 sm:text-lg">
               ৳{Number(product.price).toLocaleString()}
             </div>
           </div>
         </div>
 
-        <div className="mb-5 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-          <span
-            className={
-              deliveryCharge === 0 || deliveryCharge === '0'
-                ? 'font-medium text-emerald-600'
-                : ''
-            }
-          >
-            {deliveryText}
-          </span>
+        {/* Description */}
+        {product.description ? (
+          <p className="mb-2 line-clamp-2 text-[11px] leading-5 text-slate-500 sm:text-xs">
+            {product.description}
+          </p>
+        ) : null}
+
+        {/* Delivery */}
+        <div
+          className={[
+            'mb-3 rounded-xl px-3 py-1.5 text-[11px] font-medium sm:text-xs',
+            isFreeDelivery
+              ? 'bg-emerald-50 text-emerald-700'
+              : 'bg-slate-50 text-slate-500',
+          ].join(' ')}
+        >
+          {deliveryText}
         </div>
 
+        {/* CTA Button — pushed to bottom */}
         <button
           onClick={() => onBuyNow(product)}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 py-3.5 font-semibold text-white transition-all duration-300 hover:bg-blue-600"
+          className="mt-auto flex w-full items-center justify-center gap-1.5 rounded-[14px] bg-slate-950 py-2.5 text-xs font-bold text-white transition-all duration-200 hover:bg-blue-600 active:scale-95 sm:gap-2 sm:py-3 sm:text-sm"
         >
-          <ShoppingCart size={18} />
+          <ShoppingCart size={14} className="shrink-0 sm:hidden" />
+          <ShoppingCart size={16} className="hidden shrink-0 sm:block" />
           {t('checkout.buyNow')}
-          <ArrowRight size={16} />
+          <ArrowRight size={13} className="shrink-0 sm:hidden" />
+          <ArrowRight size={15} className="hidden shrink-0 sm:block" />
         </button>
       </div>
     </div>
