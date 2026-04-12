@@ -27,21 +27,26 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/98 shadow-sm backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        {/* Logo */}
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+
+        {/* ── Logo ── */}
         <Link to="/" className="flex flex-shrink-0 items-center gap-1.5" onClick={closeMenu}>
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-950">
-            <ShoppingBag size={16} className="text-white" />
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-950 sm:h-8 sm:w-8 sm:rounded-xl">
+            <ShoppingBag size={14} className="text-white sm:hidden" />
+            <ShoppingBag size={16} className="hidden text-white sm:block" />
           </div>
-          <span className="text-xl font-bold tracking-tight text-slate-950">
-            Nowshin
-          </span>
-          <span className="text-xl font-bold tracking-tight text-blue-600">
-            Fashion
-          </span>
+          {/* Mobile: smaller text */}
+          <div className="flex items-baseline">
+            <span className="text-base font-extrabold tracking-tight text-slate-950 sm:text-xl lg:text-2xl">
+              Nowshin
+            </span>
+            <span className="ml-1 text-base font-extrabold tracking-tight text-blue-600 sm:text-xl lg:text-2xl">
+              Fashion
+            </span>
+          </div>
         </Link>
 
-        {/* Desktop Nav */}
+        {/* ── Desktop Nav ── */}
         <nav className="hidden items-center gap-6 lg:flex">
           <Link to="/" className={navLinkClass(location.pathname === '/')}>
             {t('header.home')}
@@ -89,7 +94,7 @@ export default function Header() {
           </Link>
         </nav>
 
-        {/* Desktop Actions */}
+        {/* ── Desktop Actions ── */}
         <div className="hidden items-center gap-2 lg:flex">
           <button
             onClick={toggleLanguage}
@@ -111,11 +116,11 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Mobile: Lang + Hamburger */}
-        <div className="flex items-center gap-2 lg:hidden">
+        {/* ── Mobile: Lang toggle + Hamburger ── */}
+        <div className="flex items-center gap-1.5 lg:hidden">
           <button
             onClick={toggleLanguage}
-            className="rounded-full border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-500"
+            className="rounded-full border border-slate-200 px-2.5 py-1 text-xs font-bold text-slate-600"
           >
             {languageToggleLabel}
           </button>
@@ -129,7 +134,7 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Dropdown Menu */}
+      {/* ── Mobile Dropdown ── */}
       {menuOpen && (
         <div className="absolute inset-x-0 top-16 z-40 border-t border-slate-100 bg-white shadow-2xl lg:hidden">
           <div className="mx-auto max-w-7xl px-4 py-4">
