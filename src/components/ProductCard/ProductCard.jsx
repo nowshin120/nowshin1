@@ -1,12 +1,14 @@
 import { ArrowRight, Package, ShoppingBag, ShoppingCart } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { findCategoryBySlug, getCategoryLabel } from '../../constants/shopCategories';
+import { getProductName } from '../../lib/productText';
 
 export default function ProductCard({ product, onAddToCart, onBuyNow }) {
   const { language, t } = useLanguage();
   const isEnglish = language === 'en';
   const imageUrl = product.image_url || product.image || null;
   const deliveryCharge = product.delivery_charge ?? product.deliveryCharge ?? null;
+  const productName = getProductName(product, language);
 
   const categoryMeta = findCategoryBySlug(product.category_slug);
 
@@ -47,7 +49,7 @@ export default function ProductCard({ product, onAddToCart, onBuyNow }) {
           {imageUrl ? (
             <img
               src={imageUrl}
-              alt={product.name}
+              alt={productName}
               className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
               onError={(event) => {
                 event.currentTarget.style.display = 'none';
@@ -74,7 +76,7 @@ export default function ProductCard({ product, onAddToCart, onBuyNow }) {
       <div className="flex flex-1 flex-col p-3 sm:p-4">
         <div className="mb-2 flex items-start justify-between gap-2">
           <h3 className="flex-1 text-sm font-bold leading-snug text-slate-900 line-clamp-2 sm:text-base">
-            {product.name}
+            {productName}
           </h3>
           <div className="shrink-0 text-right">
             <div className="text-base font-extrabold text-blue-600 sm:text-lg">
