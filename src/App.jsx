@@ -94,4 +94,8 @@ function App() {
           </Routes>
         </Router>
       </AuthProvider>
-    </LanguageProvider
+    </LanguageProvider>
+  );
+}
+
+export default App;
