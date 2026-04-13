@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { ChevronDown, Globe2, Menu, X } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { NAV_CATEGORIES, getCategoryLabel } from '../../constants/shopCategories';
+import BrandLogo from './BrandLogo';
 
 export default function Header() {
   const { language, toggleLanguage, t } = useLanguage();
@@ -29,21 +30,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/98 shadow-sm backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:h-[72px] sm:px-6 lg:px-8">
-        <Link to="/" className="flex flex-shrink-0 items-center gap-2.5 sm:gap-3" onClick={closeMenu}>
-          <img
-            src="/nowshin-logo-mark.svg"
-            alt="Nowshin Fashion House logo"
-            className="h-10 w-10 shrink-0 rounded-2xl sm:h-11 sm:w-11"
-          />
-          <div className="min-w-0">
-            <p className="truncate text-[1.05rem] font-black leading-none tracking-tight text-slate-950 sm:text-[1.45rem]">
-              Nowshin
-            </p>
-            <p className="truncate pt-1 text-[0.56rem] font-bold uppercase tracking-[0.28em] text-blue-600 sm:text-[0.68rem]">
-              Fashion House
-            </p>
-          </div>
-        </Link>
+        <BrandLogo onClick={closeMenu} />
 
         <nav className="hidden items-center gap-2 lg:flex">
           <Link to="/" className={desktopNavClass(location.pathname === '/')}>
