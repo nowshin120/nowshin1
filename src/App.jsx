@@ -7,7 +7,6 @@ import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Hero from './components/Hero/Hero';
 import HomePage from './pages/HomePage';
-import WhatsAppButton from './components/WhatsAppButton/WhatsAppButton';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
@@ -32,7 +31,6 @@ function PublicHome() {
         searchQuery={searchQuery}
       />
       <Footer />
-      <WhatsAppButton />
     </div>
   );
 }
@@ -43,7 +41,6 @@ function PublicShell({ children }) {
       <Header />
       <main className="flex-grow">{children}</main>
       <Footer />
-      <WhatsAppButton />
     </div>
   );
 }
@@ -97,8 +94,4 @@ function App() {
           </Routes>
         </Router>
       </AuthProvider>
-    </LanguageProvider>
-  );
-}
-
-export default App;
+    </LanguageProvider
