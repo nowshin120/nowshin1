@@ -7,38 +7,32 @@ const ALL_PRODUCTS_CATEGORY = {
 
 export const FEATURED_HOME_CATEGORIES = [
   {
-    slug: 'phone',
-    labelBn: 'ফোন',
-    labelEn: 'Phones',
-    badgeClass: 'bg-sky-100 text-sky-700',
-  },
-  {
-    slug: 'laptop',
-    labelBn: 'ল্যাপটপ',
-    labelEn: 'Laptops',
-    badgeClass: 'bg-indigo-100 text-indigo-700',
-  },
-  {
-    slug: 'watch',
-    labelBn: 'ঘড়ি',
-    labelEn: 'Watches',
-    badgeClass: 'bg-emerald-100 text-emerald-700',
-  },
-  {
-    slug: 'shoes',
-    labelBn: 'জুতা / কেডস',
-    labelEn: 'Shoes & Keds',
-    badgeClass: 'bg-rose-100 text-rose-700',
-  },
-];
-
-export const LEGACY_CATEGORIES = [
-  {
     slug: 'sari',
     labelBn: 'শাড়ি',
     labelEn: 'Sari',
     badgeClass: 'bg-pink-100 text-pink-700',
   },
+  {
+    slug: 'three-piece',
+    labelBn: 'থ্রিপিস',
+    labelEn: 'Three Piece',
+    badgeClass: 'bg-purple-100 text-purple-700',
+  },
+  {
+    slug: 'perfume',
+    labelBn: 'পারফিউম',
+    labelEn: 'Perfume',
+    badgeClass: 'bg-violet-100 text-violet-700',
+  },
+  {
+    slug: 'women-bag',
+    labelBn: 'মেয়েদের ব্যাগ',
+    labelEn: 'Women Bags',
+    badgeClass: 'bg-rose-100 text-rose-700',
+  },
+];
+
+export const LEGACY_CATEGORIES = [
   {
     slug: 'panjabi',
     labelBn: 'পাঞ্জাবি',
@@ -46,10 +40,10 @@ export const LEGACY_CATEGORIES = [
     badgeClass: 'bg-blue-100 text-blue-700',
   },
   {
-    slug: 'three-piece',
-    labelBn: 'থ্রিপিস',
-    labelEn: 'Three Piece',
-    badgeClass: 'bg-purple-100 text-purple-700',
+    slug: 'shoes',
+    labelBn: 'জুতা / কেডস',
+    labelEn: 'Shoes & Keds',
+    badgeClass: 'bg-amber-100 text-amber-700',
   },
   {
     slug: 'kids',
@@ -61,7 +55,7 @@ export const LEGACY_CATEGORIES = [
     slug: 'kids-fashion',
     labelBn: 'কিডস পোশাক',
     labelEn: 'Kids Fashion',
-    badgeClass: 'bg-amber-100 text-amber-700',
+    badgeClass: 'bg-emerald-100 text-emerald-700',
   },
 ];
 
