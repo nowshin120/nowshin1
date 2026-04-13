@@ -10,14 +10,12 @@ import {
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useLanguage } from '../../context/LanguageContext';
-import {
-  SHOP_CATEGORIES,
-  getCategoryLabel,
-} from '../../constants/shopCategories';
+import { SHOP_CATEGORIES, getCategoryLabel } from '../../constants/shopCategories';
 
 const ROTATION_MS = 3800;
 const MAX_BANNERS = 4;
 const WHATSAPP_URL = 'https://wa.me/8801946223113';
+const DESKTOP_HERO_CATEGORIES = SHOP_CATEGORIES.slice(0, 5);
 
 function parseSlides(value) {
   if (!value) return [];
@@ -50,6 +48,7 @@ function parseSlides(value) {
 function scrollToSection(sectionId) {
   const element = document.getElementById(sectionId);
   if (!element) return;
+
   element.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -107,7 +106,7 @@ function SlideDots({ slides, currentIndex, dark = false }) {
   );
 }
 
-function DesktopSidebar({ activeCategory, language, onCategoryChange }) {
+function DesktopSidebar({ activeCategory, categories, language, onCategoryChange }) {
   return (
     <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_12px_40px_rgba(15,23,42,0.08)]">
       <div className="border-b border-slate-100 px-5 py-5">
@@ -119,13 +118,13 @@ function DesktopSidebar({ activeCategory, language, onCategoryChange }) {
         </h2>
         <p className="mt-1 text-xs leading-5 text-slate-500">
           {language === 'en'
-            ? 'Fashion collections in one place.'
-            : 'ফ্যাশন হাউসের সব কালেকশন এক জায়গায়।'}
+            ? 'Quick access to the main collections.'
+            : 'প্রধান কালেকশনগুলোতে দ্রুত যাওয়ার জন্য।'}
         </p>
       </div>
 
       <nav className="p-2.5">
-        {SHOP_CATEGORIES.map((category) => (
+        {categories.map((category) => (
           <button
             key={category.slug}
             onClick={() => onCategoryChange(category.slug)}
@@ -302,11 +301,12 @@ export default function Hero({
 
       {bannerActive ? (
         <section className="border-b border-slate-100 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.06),_transparent_38%),radial-gradient(circle_at_top_right,_rgba(99,102,241,0.08),_transparent_40%),#f8fafc]">
-          <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-5 lg:px-8 lg:py-7">
-            <div className="grid gap-5 lg:grid-cols-[240px,minmax(0,1fr)] xl:grid-cols-[260px,minmax(0,1fr)]">
+          <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6">
+            <div className="grid items-start gap-5 lg:grid-cols-[240px,minmax(0,1fr)] xl:grid-cols-[260px,minmax(0,1fr)]">
               <div className="hidden lg:block">
                 <DesktopSidebar
                   activeCategory={activeCategory}
+                  categories={DESKTOP_HERO_CATEGORIES}
                   language={language}
                   onCategoryChange={onCategoryChange}
                 />
@@ -360,10 +360,11 @@ export default function Hero({
         </section>
       ) : (
         <section className="hidden border-b border-slate-100 bg-white lg:block">
-          <div className="mx-auto max-w-7xl px-6 py-5 lg:px-8">
+          <div className="mx-auto max-w-7xl px-6 py-4 lg:px-8">
             <div className="w-[240px] xl:w-[260px]">
               <DesktopSidebar
                 activeCategory={activeCategory}
+                categories={DESKTOP_HERO_CATEGORIES}
                 language={language}
                 onCategoryChange={onCategoryChange}
               />
