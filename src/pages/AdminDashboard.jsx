@@ -37,11 +37,13 @@ import {
 const EMPTY_FORM = {
   name: '',
   price: '',
-  category_slug: PRODUCT_CATEGORIES[0]?.slug || 'phone',
+  category_slug: PRODUCT_CATEGORIES[0]?.slug || 'sari',
   delivery_charge: '100',
   description: '',
   image_url: '',
 };
+
+
 
 
 const CLOUDINARY_CLOUD_NAME =
@@ -1110,11 +1112,12 @@ export default function AdminDashboard() {
   }
   className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-blue-400"
 >
-  {PRODUCT_CATEGORIES.map((category) => (
-    <option key={category.slug} value={category.slug}>
-      {getCategoryLabel(category, 'bn')} ({category.labelEn})
-    </option>
-  ))}
+ {PRODUCT_CATEGORIES.map((category) => (
+  <option key={category.slug} value={category.slug}>
+    {getCategoryLabel(category, 'bn')} ({category.labelEn})
+  </option>
+))}
+
 </select>
 
                     </div>
