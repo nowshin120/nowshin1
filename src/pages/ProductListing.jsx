@@ -3,17 +3,16 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Package } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useLanguage } from '../context/LanguageContext';
+import { useCart } from '../context/CartContext';
 import ProductCard from '../components/ProductCard/ProductCard';
-import CheckoutModal from '../components/CheckoutModal/CheckoutModal';
 import { findCategoryBySlug, getCategoryLabel } from '../constants/shopCategories';
 
 export default function ProductListing() {
   const { category } = useParams();
   const { language } = useLanguage();
+  const { addToCart, buyNow } = useCart();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const matchedCategory = findCategoryBySlug(category);
   const categoryTitle = getCategoryLabel(matchedCategory, language) || category;
@@ -32,11 +31,6 @@ export default function ProductListing() {
         setLoading(false);
       });
   }, [category]);
-
-  const handleBuyNow = (product) => {
-    setSelectedProduct(product);
-    setIsCheckoutOpen(true);
-  };
 
   return (
     <div className="min-h-screen bg-soft-white">
@@ -74,7 +68,8 @@ export default function ProductListing() {
               <ProductCard
                 key={product.id}
                 product={product}
-                onBuyNow={handleBuyNow}
+                onAddToCart={addToCart}
+                onBuyNow={buyNow}
               />
             ))}
           </div>
@@ -92,15 +87,6 @@ export default function ProductListing() {
           </div>
         )}
       </div>
-
-      <CheckoutModal
-        isOpen={isCheckoutOpen}
-        onClose={() => setIsCheckoutOpen(false)}
-        productName={selectedProduct?.name}
-        productPrice={
-          selectedProduct ? `৳${selectedProduct.price?.toLocaleString()}` : ''
-        }
-      />
     </div>
   );
 }
