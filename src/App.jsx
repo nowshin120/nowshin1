@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { LanguageProvider } from './context/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import CartExperience from './components/cart/CartExperience';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Hero from './components/Hero/Hero';
@@ -27,7 +29,6 @@ function PublicHome() {
       />
       <HomePage
         activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
         onSearchChange={setSearchQuery}
         searchQuery={searchQuery}
       />
@@ -50,50 +51,49 @@ function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <Router>
-          <Routes>
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-
-            <Route
-              path="/products/:category"
-              element={
-                <PublicShell>
-                  <ProductListing />
-                </PublicShell>
-              }
-            />
-
-            <Route
-              path="/about"
-              element={
-                <PublicShell>
-                  <div className="mx-auto max-w-3xl px-4 py-16 text-center">
-                    <h1 className="mb-4 text-3xl font-bold text-gray-800">
-                      আমাদের সম্পর্কে
-                    </h1>
-                    <p className="text-lg text-gray-500">
-                      Nowshin Fashion House বাংলাদেশের সেরা ঐতিহ্যবাহী ও আধুনিক
-                      ফ্যাশনের সংগ্রহ।
-                    </p>
-                  </div>
-                </PublicShell>
-              }
-            />
-
-            <Route path="/" element={<PublicHome />} />
-            <Route path="*" element={<PublicHome />} />
-          </Routes>
-        </Router>
+        <CartProvider>
+          <Router>
+            <CartExperience />
+            <Routes>
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route
+                path="/products/:category"
+                element={
+                  <PublicShell>
+                    <ProductListing />
+                  </PublicShell>
+                }
+              />
+              <Route
+                path="/about"
+                element={
+                  <PublicShell>
+                    <div className="mx-auto max-w-3xl px-4 py-16 text-center">
+                      <h1 className="mb-4 text-3xl font-bold text-gray-800">
+                        আমাদের সম্পর্কে
+                      </h1>
+                      <p className="text-lg text-gray-500">
+                        Nowshin Fashion House বাংলাদেশের সেরা ঐতিহ্যবাহী ও আধুনিক
+                        ফ্যাশনের সংগ্রহ।
+                      </p>
+                    </div>
+                  </PublicShell>
+                }
+              />
+              <Route path="/" element={<PublicHome />} />
+              <Route path="*" element={<PublicHome />} />
+            </Routes>
+          </Router>
+        </CartProvider>
       </AuthProvider>
     </LanguageProvider>
   );
