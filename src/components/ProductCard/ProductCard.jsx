@@ -1,9 +1,10 @@
-import { ArrowRight, Package, ShoppingCart } from 'lucide-react';
+import { ArrowRight, Package, ShoppingBag, ShoppingCart } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { findCategoryBySlug, getCategoryLabel } from '../../constants/shopCategories';
 
-export default function ProductCard({ product, onBuyNow }) {
+export default function ProductCard({ product, onAddToCart, onBuyNow }) {
   const { language, t } = useLanguage();
+  const isEnglish = language === 'en';
   const imageUrl = product.image_url || product.image || null;
   const deliveryCharge = product.delivery_charge ?? product.deliveryCharge ?? null;
 
@@ -14,14 +15,13 @@ export default function ProductCard({ product, onBuyNow }) {
 
   if (deliveryCharge === 0 || deliveryCharge === '0') {
     isFreeDelivery = true;
-    deliveryText = language === 'en' ? 'Free delivery' : 'ফ্রি ডেলিভারি';
+    deliveryText = isEnglish ? 'Free delivery' : 'ফ্রি ডেলিভারি';
   } else if (deliveryCharge) {
-    deliveryText =
-      language === 'en'
-        ? `Delivery: ৳${Number(deliveryCharge).toLocaleString()}`
-        : `ডেলিভারি: ৳${Number(deliveryCharge).toLocaleString()}`;
+    deliveryText = isEnglish
+      ? `Delivery: ৳${Number(deliveryCharge).toLocaleString()}`
+      : `ডেলিভারি: ৳${Number(deliveryCharge).toLocaleString()}`;
   } else {
-    deliveryText = language === 'en' ? 'Delivery at checkout' : 'চেকআউটে ডেলিভারি';
+    deliveryText = isEnglish ? 'Delivery at checkout' : 'চেকআউটে ডেলিভারি';
   }
 
   return (
@@ -29,7 +29,7 @@ export default function ProductCard({ product, onBuyNow }) {
       <div className="relative overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="absolute inset-x-2 top-2 z-20 flex items-start justify-between gap-2 sm:inset-x-3 sm:top-3">
           <div className="rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm sm:px-3 sm:py-1 sm:text-[11px]">
-            {language === 'en' ? 'COD' : 'ক্যাশ অন ডেলিভারি'}
+            {isEnglish ? 'COD' : 'ক্যাশ অন ডেলিভারি'}
           </div>
           {categoryMeta ? (
             <div
@@ -49,9 +49,9 @@ export default function ProductCard({ product, onBuyNow }) {
               src={imageUrl}
               alt={product.name}
               className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                const sibling = e.currentTarget.nextElementSibling;
+              onError={(event) => {
+                event.currentTarget.style.display = 'none';
+                const sibling = event.currentTarget.nextElementSibling;
                 if (sibling) sibling.style.display = 'flex';
               }}
             />
@@ -63,7 +63,7 @@ export default function ProductCard({ product, onBuyNow }) {
           >
             <Package size={36} />
             <span className="text-xs text-slate-400">
-              {language === 'en' ? 'No image' : 'ছবি নেই'}
+              {isEnglish ? 'No image' : 'ছবি নেই'}
             </span>
           </div>
         </div>
@@ -100,16 +100,29 @@ export default function ProductCard({ product, onBuyNow }) {
           {deliveryText}
         </div>
 
-        <button
-          onClick={() => onBuyNow(product)}
-          className="mt-auto flex w-full items-center justify-center gap-1.5 rounded-[14px] bg-slate-950 py-2.5 text-xs font-bold text-white transition-all duration-200 hover:bg-blue-600 active:scale-95 sm:gap-2 sm:py-3 sm:text-sm"
-        >
-          <ShoppingCart size={14} className="shrink-0 sm:hidden" />
-          <ShoppingCart size={16} className="hidden shrink-0 sm:block" />
-          {t('checkout.buyNow')}
-          <ArrowRight size={13} className="shrink-0 sm:hidden" />
-          <ArrowRight size={15} className="hidden shrink-0 sm:block" />
-        </button>
+        <div className="mt-auto grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => onAddToCart?.(product)}
+            className="flex items-center justify-center gap-1.5 rounded-[14px] border border-slate-200 bg-slate-50 py-2.5 text-xs font-bold text-slate-700 transition-all duration-200 hover:border-slate-300 hover:bg-slate-100 active:scale-95 sm:gap-2 sm:py-3 sm:text-sm"
+          >
+            <ShoppingBag size={14} className="shrink-0 sm:hidden" />
+            <ShoppingBag size={16} className="hidden shrink-0 sm:block" />
+            {isEnglish ? 'Add to Cart' : 'কার্টে নিন'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onBuyNow(product)}
+            className="flex items-center justify-center gap-1.5 rounded-[14px] bg-slate-950 py-2.5 text-xs font-bold text-white transition-all duration-200 hover:bg-blue-600 active:scale-95 sm:gap-2 sm:py-3 sm:text-sm"
+          >
+            <ShoppingCart size={14} className="shrink-0 sm:hidden" />
+            <ShoppingCart size={16} className="hidden shrink-0 sm:block" />
+            {t('checkout.buyNow')}
+            <ArrowRight size={13} className="shrink-0 sm:hidden" />
+            <ArrowRight size={15} className="hidden shrink-0 sm:block" />
+          </button>
+        </div>
       </div>
     </div>
   );
