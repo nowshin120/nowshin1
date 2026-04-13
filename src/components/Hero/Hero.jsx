@@ -1,21 +1,16 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Footprints,
   Grid2x2,
-  Laptop2,
   MessageCircle,
   Search,
   ShoppingCart,
-  Smartphone,
   UserCircle2,
-  Watch,
   X,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useLanguage } from '../../context/LanguageContext';
 import {
-  FEATURED_HOME_CATEGORIES,
   SHOP_CATEGORIES,
   getCategoryLabel,
 } from '../../constants/shopCategories';
@@ -23,33 +18,6 @@ import {
 const ROTATION_MS = 3800;
 const MAX_BANNERS = 4;
 const WHATSAPP_URL = 'https://wa.me/8801946223113';
-
-const QUICK_ACTIONS = [
-  {
-    slug: 'phone',
-    icon: Smartphone,
-    iconWrap: 'bg-sky-100 text-sky-700',
-    card: 'border-sky-100 bg-white',
-  },
-  {
-    slug: 'laptop',
-    icon: Laptop2,
-    iconWrap: 'bg-indigo-100 text-indigo-700',
-    card: 'border-indigo-100 bg-white',
-  },
-  {
-    slug: 'watch',
-    icon: Watch,
-    iconWrap: 'bg-emerald-100 text-emerald-700',
-    card: 'border-emerald-100 bg-white',
-  },
-  {
-    slug: 'shoes',
-    icon: Footprints,
-    iconWrap: 'bg-rose-100 text-rose-700',
-    card: 'border-rose-100 bg-white',
-  },
-];
 
 function parseSlides(value) {
   if (!value) return [];
@@ -82,7 +50,6 @@ function parseSlides(value) {
 function scrollToSection(sectionId) {
   const element = document.getElementById(sectionId);
   if (!element) return;
-
   element.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -152,8 +119,8 @@ function DesktopSidebar({ activeCategory, language, onCategoryChange }) {
         </h2>
         <p className="mt-1 text-xs leading-5 text-slate-500">
           {language === 'en'
-            ? 'All old and new collections in one place.'
-            : 'পুরনো আর নতুন সব কালেকশন এক জায়গা থেকে বেছে নিন।'}
+            ? 'Fashion collections in one place.'
+            : 'ফ্যাশন হাউসের সব কালেকশন এক জায়গায়।'}
         </p>
       </div>
 
@@ -217,7 +184,6 @@ export default function Hero({
   onSearchChange,
 }) {
   const navigate = useNavigate();
-  const [bannerText, setBannerText] = useState('');
   const [bannerActive, setBannerActive] = useState(true);
   const [desktopSlides, setDesktopSlides] = useState([]);
   const [mobileSlides, setMobileSlides] = useState([]);
@@ -234,7 +200,6 @@ export default function Hero({
       .from('site_settings')
       .select('key,value')
       .in('key', [
-        'banner_text',
         'banner_active',
         'banner_slides_desktop',
         'banner_slides_mobile',
@@ -244,7 +209,6 @@ export default function Hero({
       .then(({ data }) => {
         if (!mounted || !data) return;
 
-        let nextText = '';
         let nextActive = true;
         let fallbackDesktop = '';
         let fallbackMobile = '';
@@ -252,7 +216,6 @@ export default function Hero({
         let parsedMobile = [];
 
         data.forEach((setting) => {
-          if (setting.key === 'banner_text') nextText = setting.value ?? '';
           if (setting.key === 'banner_active') nextActive = setting.value !== 'false';
           if (setting.key === 'banner_image_url') fallbackDesktop = setting.value ?? '';
           if (setting.key === 'banner_image_url_mobile') fallbackMobile = setting.value ?? '';
@@ -274,7 +237,6 @@ export default function Hero({
               ? [{ id: 'mobile-1', imageUrl: fallbackMobile }]
               : finalDesktopSlides;
 
-        setBannerText(nextText);
         setBannerActive(nextActive);
         setDesktopSlides(finalDesktopSlides);
         setMobileSlides(finalMobileSlides);
@@ -306,13 +268,6 @@ export default function Hero({
 
     return () => window.clearInterval(timer);
   }, [mobileSlides]);
-
-  const activeQuickActions = useMemo(() => {
-    return QUICK_ACTIONS.map((item) => ({
-      ...item,
-      meta: FEATURED_HOME_CATEGORIES.find((category) => category.slug === item.slug),
-    })).filter((item) => item.meta);
-  }, []);
 
   const activeDesktopIndex = desktopSlides.length ? desktopIndex % desktopSlides.length : 0;
   const activeMobileIndex = mobileSlides.length ? mobileIndex % mobileSlides.length : 0;
@@ -358,33 +313,8 @@ export default function Hero({
               </div>
 
               <div className="relative min-w-0">
-                <div className="mb-4 grid grid-cols-2 gap-3 lg:hidden">
-                  {activeQuickActions.map(({ slug, meta, icon: Icon, iconWrap, card }) => (
-                    <button
-                      key={slug}
-                      type="button"
-                      onClick={() => handleCategorySelect(slug)}
-                      className={[
-                        'rounded-[22px] border p-4 text-left shadow-[0_8px_24px_rgba(15,23,42,0.06)] transition-all duration-200 active:scale-[0.98]',
-                        card,
-                        activeCategory === slug ? 'ring-2 ring-slate-900/10' : '',
-                      ].join(' ')}
-                    >
-                      <div className={['flex h-11 w-11 items-center justify-center rounded-2xl', iconWrap].join(' ')}>
-                        <Icon size={20} />
-                      </div>
-                      <p className="mt-3 text-sm font-bold text-slate-900">
-                        {getCategoryLabel(meta, language)}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        {isEnglish ? 'Tap to browse' : 'দেখতে ট্যাপ করুন'}
-                      </p>
-                    </button>
-                  ))}
-                </div>
-
-                <div className="block lg:hidden">
-                  <div className="overflow-hidden rounded-[28px] border border-white/70 bg-white shadow-[0_18px_48px_rgba(15,23,42,0.10)]">
+                <div className="relative block lg:hidden">
+                  <div className="overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_18px_48px_rgba(15,23,42,0.10)]">
                     <BannerStage
                       slides={mobileSlides}
                       currentIndex={activeMobileIndex}
@@ -393,25 +323,19 @@ export default function Hero({
                     />
                   </div>
 
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 p-4">
-                    <div className="flex items-end justify-between gap-4">
-                      <div className="rounded-[20px] bg-white/94 px-4 py-3 shadow-[0_12px_30px_rgba(15,23,42,0.10)] backdrop-blur-sm">
-                        <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400">
-                          {isEnglish ? 'Featured' : 'ফিচার্ড'}
-                        </p>
-                        <h1 className="mt-1 text-base font-bold leading-tight text-slate-950">
-                          {bannerText || (isEnglish ? 'Smart picks for you' : 'আপনার জন্য সেরা পছন্দ')}
-                        </h1>
-                      </div>
-                      <div className="rounded-full bg-white/90 px-3 py-2 shadow-[0_8px_24px_rgba(15,23,42,0.10)]">
-                        <SlideDots slides={mobileSlides} currentIndex={activeMobileIndex} dark />
-                      </div>
+                  <div className="pointer-events-none absolute inset-x-0 bottom-5 flex justify-center">
+                    <div className="rounded-full bg-white/90 px-4 py-3 shadow-[0_10px_25px_rgba(15,23,42,0.10)]">
+                      <SlideDots
+                        slides={mobileSlides}
+                        currentIndex={activeMobileIndex}
+                        dark
+                      />
                     </div>
                   </div>
                 </div>
 
-                <div className="hidden lg:block">
-                  <div className="overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.12)]">
+                <div className="relative hidden lg:block">
+                  <div className="overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_18px_48px_rgba(15,23,42,0.10)]">
                     <BannerStage
                       slides={desktopSlides}
                       currentIndex={activeDesktopIndex}
@@ -420,20 +344,13 @@ export default function Hero({
                     />
                   </div>
 
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 p-6 xl:p-7">
-                    <div className="flex items-end justify-between gap-5">
-                      <div className="max-w-sm rounded-[24px] bg-white/94 px-5 py-4 shadow-[0_16px_38px_rgba(15,23,42,0.10)] backdrop-blur-sm">
-                        <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400">
-                          {isEnglish ? 'Now showing' : 'এখন দেখুন'}
-                        </p>
-                        <h1 className="mt-2 text-2xl font-bold leading-tight text-slate-950 xl:text-[2rem]">
-                          {bannerText || (isEnglish ? 'Trending store highlights' : 'ট্রেন্ডিং স্টোর হাইলাইটস')}
-                        </h1>
-                      </div>
-
-                      <div className="rounded-full bg-white/90 px-4 py-3 shadow-[0_10px_25px_rgba(15,23,42,0.10)]">
-                        <SlideDots slides={desktopSlides} currentIndex={activeDesktopIndex} dark />
-                      </div>
+                  <div className="pointer-events-none absolute inset-x-0 bottom-5 flex justify-center">
+                    <div className="rounded-full bg-white/90 px-4 py-3 shadow-[0_10px_25px_rgba(15,23,42,0.10)]">
+                      <SlideDots
+                        slides={desktopSlides}
+                        currentIndex={activeDesktopIndex}
+                        dark
+                      />
                     </div>
                   </div>
                 </div>
