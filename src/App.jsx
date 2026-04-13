@@ -28,6 +28,7 @@ function PublicHome() {
       <HomePage
         activeCategory={activeCategory}
         onCategoryChange={setActiveCategory}
+        onSearchChange={setSearchQuery}
         searchQuery={searchQuery}
       />
       <Footer />
