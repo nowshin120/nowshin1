@@ -1,15 +1,17 @@
-import { ArrowRight, Package, ShoppingBag, ShoppingCart } from 'lucide-react';
+/// src/components/ProductCard/ProductCard.jsx ///
+
+import { Package, ShoppingBag } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { findCategoryBySlug, getCategoryLabel } from '../../constants/shopCategories';
 import { getProductName } from '../../lib/productText';
 
-export default function ProductCard({ product, onAddToCart, onBuyNow }) {
-  const { language, t } = useLanguage();
+export default function ProductCard({ product, onAddToCart }) {
+  const { language } = useLanguage();
   const isEnglish = language === 'en';
+
   const imageUrl = product.image_url || product.image || null;
   const deliveryCharge = product.delivery_charge ?? product.deliveryCharge ?? null;
   const productName = getProductName(product, language);
-
   const categoryMeta = findCategoryBySlug(product.category_slug);
 
   let deliveryText = null;
@@ -33,6 +35,7 @@ export default function ProductCard({ product, onAddToCart, onBuyNow }) {
           <div className="rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm sm:px-3 sm:py-1 sm:text-[11px]">
             {isEnglish ? 'COD' : 'ক্যাশ অন ডেলিভারি'}
           </div>
+
           {categoryMeta ? (
             <div
               className={[
@@ -78,6 +81,7 @@ export default function ProductCard({ product, onAddToCart, onBuyNow }) {
           <h3 className="flex-1 text-sm font-bold leading-snug text-slate-900 line-clamp-2 sm:text-base">
             {productName}
           </h3>
+
           <div className="shrink-0 text-right">
             <div className="text-base font-extrabold text-blue-600 sm:text-lg">
               ৳{Number(product.price).toLocaleString()}
@@ -102,29 +106,14 @@ export default function ProductCard({ product, onAddToCart, onBuyNow }) {
           {deliveryText}
         </div>
 
-        <div className="mt-auto grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            onClick={() => onAddToCart?.(product)}
-            className="flex items-center justify-center gap-1.5 rounded-[14px] border border-slate-200 bg-slate-50 py-2.5 text-xs font-bold text-slate-700 transition-all duration-200 hover:border-slate-300 hover:bg-slate-100 active:scale-95 sm:gap-2 sm:py-3 sm:text-sm"
-          >
-            <ShoppingBag size={14} className="shrink-0 sm:hidden" />
-            <ShoppingBag size={16} className="hidden shrink-0 sm:block" />
-            {isEnglish ? 'Add to Cart' : 'কার্টে নিন'}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onBuyNow(product)}
-            className="flex items-center justify-center gap-1.5 rounded-[14px] bg-slate-950 py-2.5 text-xs font-bold text-white transition-all duration-200 hover:bg-blue-600 active:scale-95 sm:gap-2 sm:py-3 sm:text-sm"
-          >
-            <ShoppingCart size={14} className="shrink-0 sm:hidden" />
-            <ShoppingCart size={16} className="hidden shrink-0 sm:block" />
-            {t('checkout.buyNow')}
-            <ArrowRight size={13} className="shrink-0 sm:hidden" />
-            <ArrowRight size={15} className="hidden shrink-0 sm:block" />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => onAddToCart?.(product)}
+          className="mt-auto flex w-full items-center justify-center gap-2 rounded-[15px] bg-slate-950 px-4 py-3 text-sm font-extrabold text-white shadow-[0_10px_24px_rgba(15,23,42,0.18)] transition-all duration-200 hover:bg-blue-600 hover:shadow-[0_14px_30px_rgba(37,99,235,0.28)] active:scale-[0.98]"
+        >
+          <ShoppingBag size={17} className="shrink-0" />
+          {isEnglish ? 'Add to Cart' : 'কার্টে যোগ করুন'}
+        </button>
       </div>
     </div>
   );
